@@ -1,0 +1,6 @@
+dataset/gtea/*
+result/gtea/dataset-gtea_split-1/predictions/*.png
+result/gtea/dataset-gtea_split-2/predictions/*.png
+result/gtea/dataset-gtea_split-3/predictions/*.png
+result/gtea/dataset-gtea_split-4/predictions/*.png
+wandb/*
