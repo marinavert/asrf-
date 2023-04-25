@@ -95,6 +95,9 @@ def main():
         n_layers=config.n_layers,
         n_stages_asb=config.n_stages_asb,
         n_stages_brb=config.n_stages_brb,
+        n_layers_PG=config.n_layers_PG,
+        n_layers_R=config.n_layers_R,
+        num_R=config.num_R
     )
 
     # send the model to cuda/cpu
@@ -128,5 +131,5 @@ def main():
 
 
 if __name__ == "__main__":
-    with wandb.init(project="asrf-gtea", notes="epoch=100, original setting"):
+    with wandb.init(project="asrf++-gtea", notes="epoch=50, original setting"):
         main()

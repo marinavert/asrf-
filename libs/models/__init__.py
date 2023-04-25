@@ -2,7 +2,7 @@ from typing import Any
 
 import torch.nn as nn
 
-from .tcn import EDTCN, ActionSegmentRefinementFramework, MultiStageTCN, SingleStageTCN
+from .tcn import EDTCN, ActionSegmentRefinementFramework, MultiStageTCN, SingleStageTCN, MultiStageTCN2
 
 __all__ = ["get_model", "ActionSegmentRefinementFramework"]
 
@@ -21,5 +21,7 @@ def get_as_model(model_name: str, **kwargs: Any) -> nn.Module:
         model = SingleStageTCN(**kwargs)
     elif model_name == "ed-tcn":
         model = EDTCN(**kwargs)
+    elif model_name == "ms-tcn++":
+        model = MultiStageTCN2(**kwargs)
 
     return model

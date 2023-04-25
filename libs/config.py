@@ -15,6 +15,10 @@ class Config:
     n_features: int = 64
     n_stages_asb: int = 4
     n_stages_brb: int = 4
+    n_layers_PG: int = 11
+    n_layers_R: int = 10
+    num_R: int = 3
+
 
     # loss function
     ce: bool = True  # cross entropy
@@ -39,7 +43,7 @@ class Config:
     in_channel: int = 2048
 
     num_workers: int = 4
-    max_epoch: int = 100
+    max_epoch: int = 50
 
     optimizer: str = "Adam"
 

@@ -7,6 +7,101 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+class MultiStageTCN2(nn.Module):
+    """MS-TCN++ model"""
+    def __init__(
+        self,
+        n_layers_PG,
+        n_layers_R,
+        n_R,
+        n_features,
+        in_channels,
+        n_classes
+    ) -> None :
+        super().__init__()
+        self.PG = Prediction_Generation(n_layers_PG, n_features, in_channels, n_classes)
+        refinement_stages = [
+            Refinement(n_layers_R, n_features, n_classes, n_classes)
+            for _ in range(num_R)
+        ]
+        self.RS = nn.ModuleList(refinement_stages)
+    
+    def forward(self, x):
+        out = self.PG(x)
+        outputs = out.unsqueeze(0)
+        for R in self.RS:
+            out = R(F.softmax(out, dim=1))
+            outputs = torch.cat((outputs, out.unsqueeze(0)), dim=0)
+        return outputs
+
+class Prediction_Generation(nn.Module):
+    def __init__(
+        self,
+        n_layers,
+        n_features,
+        in_channels,
+        n_classes
+    ) -> None :
+        super().__init__()
+        self.n_layers = n_layers
+        self.conv_1x1_in = nn.Conv1d(in_channels, n_features, 1)
+        dilated_1 = [
+            nn.Conv1d(n_features, n_features, 3, padding=2**(n_layers-1-i),dilation=2**(n_layers-1-i))
+            for i in range(n_layers)
+        ]
+        self.conv_dilated_1 = nn.ModuleList(dilated_1)
+        dilated_2 = [
+            nn.Conv1d(n_features, n_features, 3, padding=2**i, dilation=2**i)
+            for i in range(n_layers)
+        ]
+        self.conv_dilated_2 = nn.ModuleList(dilated_2)
+        fusion = [
+            nn.Conv1d(2*n_features, n_features, 1)
+            for _ in range(n_layers)
+        ]
+        self.conv_fusion = nn.ModuleList(fusion)
+        self.dropout = nn.Dropout()
+        self.conv_out = nn.Conv1d(n_features, n_classes, 1)
+    
+    def forward(self, x):
+        f = self.conv_1x1_in(x)
+        for i in range(self.n_layers):
+            f_in = F
+            f = self.conv_fusion[i](torch.cat([self.conv_dilated_1[i](f), self.conv_dilated_2[i](f)], 1))
+            f = F.relu(f)
+            f = self.dropout(f)
+            f = f + f_in
+        out = self.conv_out(f)
+        return out
+
+class Refinement(nn.Module):
+    def __init__(
+        self,
+        n_layers,
+        n_features,
+        in_channels,
+        n_classes
+    ) -> None :
+        super().__init__()
+        self.conv_1x1 = nn.Conv1d(in_channels, n_features, 1)
+        layer = [
+            DilatedResidualLayer(2**i, n_features, n_features)
+            for i in range(n_layers)
+        ]
+        self.layers = nn.ModuleList(layer)
+        self.conv_out = nn.Conv1d(n_features, n_classes, 1)
+    
+    def forward(self, x):
+        out = self.conv_1x1(x)
+        for layer in self.layers:
+            out = layer(out)
+        out = self.conv_out(out)
+        return out
+
+
+
+
+
 
 class MultiStageTCN(nn.Module):
     """
@@ -238,6 +333,9 @@ class ActionSegmentRefinementFramework(nn.Module):
         n_classes: int,
         n_stages: int,
         n_layers: int,
+        n_layers_PG: int,
+        n_layers_R: int,
+        num_R: int,
         n_stages_asb: Optional[int] = None,
         n_stages_brb: Optional[int] = None,
         **kwargs: Any
@@ -260,9 +358,7 @@ class ActionSegmentRefinementFramework(nn.Module):
         self.conv_bound = nn.Conv1d(n_features, 1, 1)
 
         # action segmentation branch
-        asb = [
-            SingleStageTCN(n_classes, n_features, n_classes, n_layers)
-            for _ in range(n_stages_asb - 1)
+        asb = [ Prediction_Generation(n_layers_PG, n_features, in_channel, n_classes)] + [Refinement(n_layers_R, n_features, n_classes, n_classes) for _ in range(num_R)
         ]
 
         # boundary regression branch
@@ -272,7 +368,7 @@ class ActionSegmentRefinementFramework(nn.Module):
         self.asb = nn.ModuleList(asb)
         self.brb = nn.ModuleList(brb)
 
-        self.activation_asb = nn.Softmax(dim=1)
+        # self.activation_asb = nn.Softmax(dim=1)
         self.activation_brb = nn.Sigmoid()
 
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -288,7 +384,7 @@ class ActionSegmentRefinementFramework(nn.Module):
             outputs_bound = [out_bound]
 
             for as_stage in self.asb:
-                out_cls = as_stage(self.activation_asb(out_cls))
+                out_cls = as_stage(out_cls)
                 outputs_cls.append(out_cls)
 
             for br_stage in self.brb:
