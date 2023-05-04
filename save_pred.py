@@ -139,8 +139,14 @@ def main():
         n_classes=n_classes,
         n_stages=config.n_stages,
         n_layers=config.n_layers,
+        n_layers_PG=config.n_layers_PG,
+        n_layers_R=config.n_layers_R,
+        num_R=config.num_R,
         n_stages_asb=config.n_stages_asb,
         n_stages_brb=config.n_stages_brb,
+
+ 
+
     )
 
     # send the model to cuda/cpu

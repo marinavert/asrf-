@@ -22,7 +22,7 @@ class MultiStageTCN2(nn.Module):
         self.PG = Prediction_Generation(n_layers_PG, n_features, in_channels, n_classes)
         refinement_stages = [
             Refinement(n_layers_R, n_features, n_classes, n_classes)
-            for _ in range(num_R)
+            for _ in range(n_R)
         ]
         self.RS = nn.ModuleList(refinement_stages)
     
@@ -66,7 +66,7 @@ class Prediction_Generation(nn.Module):
     def forward(self, x):
         f = self.conv_1x1_in(x)
         for i in range(self.n_layers):
-            f_in = F
+            f_in = f
             f = self.conv_fusion[i](torch.cat([self.conv_dilated_1[i](f), self.conv_dilated_2[i](f)], 1))
             f = F.relu(f)
             f = self.dropout(f)
@@ -358,9 +358,8 @@ class ActionSegmentRefinementFramework(nn.Module):
         self.conv_bound = nn.Conv1d(n_features, 1, 1)
 
         # action segmentation branch
-        asb = [ Prediction_Generation(n_layers_PG, n_features, in_channel, n_classes)] + [Refinement(n_layers_R, n_features, n_classes, n_classes) for _ in range(num_R)
-        ]
-
+        asb = [ Prediction_Generation(n_layers_PG, n_features, n_classes, n_classes)] + [Refinement(n_layers_R, n_features, n_classes, n_classes) for _ in range(num_R)]
+        # print("ASB = ", asb)
         # boundary regression branch
         brb = [
             SingleStageTCN(1, n_features, 1, n_layers) for _ in range(n_stages_brb - 1)
@@ -372,15 +371,21 @@ class ActionSegmentRefinementFramework(nn.Module):
         self.activation_brb = nn.Sigmoid()
 
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        # print("X = ", x.size())
         out = self.conv_in(x)
+        # print("Out = ", out.size())
+        # z = 1
         for layer in self.shared_layers:
             out = layer(out)
-
+            # print("Layer ", z, " = ", out.size())
+            # z += 1
         out_cls = self.conv_cls(out)
         out_bound = self.conv_bound(out)
 
         if self.training:
             outputs_cls = [out_cls]
+            # print(len(outputs_cls))
+            # print("ZZZZZZZZZZ", outputs_cls[0].shape)
             outputs_bound = [out_bound]
 
             for as_stage in self.asb:
@@ -394,7 +399,7 @@ class ActionSegmentRefinementFramework(nn.Module):
             return (outputs_cls, outputs_bound)
         else:
             for as_stage in self.asb:
-                out_cls = as_stage(self.activation_asb(out_cls))
+                out_cls = as_stage(out_cls)
 
             for br_stage in self.brb:
                 out_bound = br_stage(self.activation_brb(out_bound))
