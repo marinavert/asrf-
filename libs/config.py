@@ -17,7 +17,6 @@ class Config:
     n_stages_brb: int = 4
     n_layers_PG: int = 11
     n_layers_R: int = 10
-    num_R: int = 3
 
 
     # loss function
@@ -43,11 +42,11 @@ class Config:
     in_channel: int = 2048
 
     num_workers: int = 4
-    max_epoch: int = 50
+    max_epoch: int = 100
 
     optimizer: str = "Adam"
 
-    learning_rate: float = 0.0005
+    learning_rate: float = 0.0005 #0.0005
     momentum: float = 0.9  # momentum of SGD
     dampening: float = 0.0  # dampening for momentum of SGD
     weight_decay: float = 0.0001  # weight decay
@@ -67,6 +66,10 @@ class Config:
     dataset_dir: str = "./dataset"
     csv_dir: str = "./csv"
     split: int = 1
+
+    # CUDA
+    device: int = 1
+
 
     def __post_init__(self) -> None:
         self._type_check()

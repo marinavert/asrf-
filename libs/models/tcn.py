@@ -335,7 +335,6 @@ class ActionSegmentRefinementFramework(nn.Module):
         n_layers: int,
         n_layers_PG: int,
         n_layers_R: int,
-        num_R: int,
         n_stages_asb: Optional[int] = None,
         n_stages_brb: Optional[int] = None,
         **kwargs: Any
@@ -358,7 +357,7 @@ class ActionSegmentRefinementFramework(nn.Module):
         self.conv_bound = nn.Conv1d(n_features, 1, 1)
 
         # action segmentation branch
-        asb = [ Prediction_Generation(n_layers_PG, n_features, n_classes, n_classes)] + [Refinement(n_layers_R, n_features, n_classes, n_classes) for _ in range(num_R)]
+        asb = [ Prediction_Generation(n_layers_PG, n_features, n_classes, n_classes)] + [Refinement(n_layers_R, n_features, n_classes, n_classes) for _ in range(n_stages_asb-1)]
         # print("ASB = ", asb)
         # boundary regression branch
         brb = [

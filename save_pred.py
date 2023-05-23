@@ -107,8 +107,8 @@ def main():
     if args.cpu:
         device = "cpu"
     else:
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        if device == "cuda":
+        device = "cuda:" + str(config.device) if torch.cuda.is_available() else "cpu"
+        if device == "cuda:" + str(config.device):
             torch.backends.cudnn.benchmark = True
 
     # Dataloader
@@ -141,9 +141,8 @@ def main():
         n_layers=config.n_layers,
         n_layers_PG=config.n_layers_PG,
         n_layers_R=config.n_layers_R,
-        num_R=config.num_R,
         n_stages_asb=config.n_stages_asb,
-        n_stages_brb=config.n_stages_brb,
+        n_stages_brb=config.n_stages_brb
 
  
 
