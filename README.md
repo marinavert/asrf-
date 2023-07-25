@@ -1,6 +1,10 @@
 # Alleviating Over-segmentation Errors by Detecting Action Boundaries
 
-On local Fei Fei
+On local Fei Fei server
+
+- Using MS-TCN++ as the model for the ASB branch.
+- Possibility to use the concatenation of the features extracted by ResNet-50 with original I3D ones.
+
 
 This repo is the official implementation of [Y. Ishikawa et al. "Alleviating Over-segmentation Errors by Detecting Action Boundaries" in WACV 2021](https://arxiv.org/abs/2007.06866).
 
