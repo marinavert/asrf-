@@ -34,12 +34,12 @@ class Config:
     gstmse_index: str = "feature"  # similarity index
 
     # if you use class weight to calculate cross entropy or not
-    class_weight: bool = True
+    class_weight: bool = False
 
     batch_size: int = 1
 
     # the number of input feature channels
-    in_channel: int = 2048
+    in_channel: int = 2048 #4096
 
     num_workers: int = 4
     max_epoch: int = 100
@@ -60,7 +60,7 @@ class Config:
     # boundary regression
     tolerance: int = 5
     boundary_th: float = 0.5
-    lambda_b: float = 0.1
+    lambda_b: float = 0.2 #0.1
 
     dataset: str = "breakfast"
     dataset_dir: str = "./dataset"
@@ -69,6 +69,9 @@ class Config:
 
     # CUDA
     device: int = 1
+
+    # refinement method
+    refinement_method: str = "refinement_with_boundary"
 
 
     def __post_init__(self) -> None:

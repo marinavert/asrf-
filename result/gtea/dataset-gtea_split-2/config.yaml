@@ -7,6 +7,7 @@ csv_dir: ./csv
 dampening: 0.0
 dataset: gtea
 dataset_dir: ./dataset
+device: 1
 focal: false
 focal_weight: 1.0
 gstmse: true
@@ -19,7 +20,7 @@ iou_thresholds:
 - 0.5
 lambda_b: 0.1
 learning_rate: 0.0005
-max_epoch: 50
+max_epoch: 100
 model: ActionSegmentRefinementNetwork
 momentum: 0.9
 n_features: 64
@@ -30,10 +31,10 @@ n_stages: 4
 n_stages_asb: 4
 n_stages_brb: 4
 nesterov: true
-num_R: 3
 num_workers: 4
 optimizer: Adam
 param_search: false
+refinement_method: refinement_with_boundary
 split: 2
 tmse: false
 tmse_weight: 0.15

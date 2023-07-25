@@ -17,6 +17,7 @@ class TempDownSamp(object):
 
         if self.downsamp_rate > 1:
             feature = feature[:, :: self.downsamp_rate]
+            # hand = hand[:, :: self.downsamp_rate]
             label = label[:: self.downsamp_rate]
 
             # not to remove boundary at odd number frames.
@@ -48,6 +49,7 @@ class ToTensor(object):
 
         # from numpy to tensor
         feature = torch.from_numpy(feature).float()
+        # hand = torch.from_numpy(hand).float()
         label = torch.from_numpy(label).long()
         boundary = torch.from_numpy(boundary).float()
 
@@ -56,6 +58,7 @@ class ToTensor(object):
             pass
         elif feature.shape[1] > label.shape[0]:
             feature = feature[:, : label.shape[0]]
+            # hand = hand[:, : label.shape[0]]
         else:
             label = label[: feature.shape[1]]
             boundary = boundary[: feature.shape[1]]

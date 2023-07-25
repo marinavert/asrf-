@@ -72,7 +72,7 @@ def main() -> None:
     train_data = ActionSegmentationDataset(
         config.dataset,
         transform=Compose([ToTensor(), TempDownSamp(downsamp_rate)]),
-        mode="trainval" if not config.param_search else "training",
+        mode="trainval", # if not config.param_search else "training",
         split=config.split,
         dataset_dir=config.dataset_dir,
         csv_dir=config.csv_dir,

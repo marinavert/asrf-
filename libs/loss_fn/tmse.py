@@ -32,6 +32,8 @@ class TMSE(nn.Module):
 
         return total_loss / batch_size
 
+# loss += 0.15*torch.mean(torch.clamp(self.mse(F.log_softmax(p[:, :, 1:], dim=1), F.log_softmax(p.detach()[:, :, :-1], dim=1)), min=0, max=16)*mask[:, :, 1:])
+
 
 class GaussianSimilarityTMSE(nn.Module):
     """

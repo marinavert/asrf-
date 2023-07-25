@@ -23,7 +23,7 @@ def main() -> None:
     args = get_arguments()
 
     sub_dirs = glob.glob(os.path.join(args.result_dir, "*"))
-
+    print("SUB DIR", sub_dirs)
     values = []
     for sub_dir in sub_dirs:
         log_path = os.path.join(sub_dir, "{}_log.csv".format(args.mode))

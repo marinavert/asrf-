@@ -70,18 +70,19 @@ class ActionSegmentationDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Dict[str, Any]:
         feature_path = self.df.iloc[idx]["feature"]
+        # hand_path = self.df.iloc[idx]["hand"]
         label_path = self.df.iloc[idx]["label"]
         boundary_path = self.df.iloc[idx]["boundary"]
-
         feature = np.load(feature_path).astype(np.float32)
+        # hand = np.load(hand_path).astype(np.float32)
         label = np.load(label_path).astype(np.int64)
         boundary = np.load(boundary_path).astype(np.float32)
-
         if self.transform is not None:
             feature, label, boundary = self.transform([feature, label, boundary])
 
         sample = {
             "feature": feature,
+            # "hand": hand,
             "label": label,
             "feature_path": feature_path,
             "boundary": boundary,
@@ -94,6 +95,7 @@ def collate_fn(sample: List[Dict[str, Any]]) -> Dict[str, Any]:
     max_length = max([s["feature"].shape[1] for s in sample])
 
     feat_list = []
+    # hand_list = []
     label_list = []
     path_list = []
     boundary_list = []
@@ -101,6 +103,7 @@ def collate_fn(sample: List[Dict[str, Any]]) -> Dict[str, Any]:
 
     for s in sample:
         feature = s["feature"]
+        # hand = s["hand"]
         label = s["label"]
         boundary = s["boundary"]
         feature_path = s["feature_path"]
@@ -112,6 +115,7 @@ def collate_fn(sample: List[Dict[str, Any]]) -> Dict[str, Any]:
 
         if pad_t > 0:
             feature = F.pad(feature, (0, pad_t), mode="constant", value=0.0)
+            # hand = F.pad(hand, (0, pad_t), mode="constant", value=0.0)
             label = F.pad(label, (0, pad_t), mode="constant", value=255)
             boundary = F.pad(boundary, (0, pad_t), mode="constant", value=0.0)
 
@@ -119,10 +123,14 @@ def collate_fn(sample: List[Dict[str, Any]]) -> Dict[str, Any]:
         boundary = boundary.unsqueeze(0)
 
         feat_list.append(feature)
+        # hand_list.append(hand)
         label_list.append(label)
         path_list.append(feature_path)
         boundary_list.append(boundary)
 
+    
+    # features_list = torch.cat((feat_list[0], hand_list[0]),dim=0)
+    # features = torch.unsqueeze(features_list, dim=0)
     # merge features from tuple of 2D tensor to 3D tensor
     features = torch.stack(feat_list, dim=0)
     # merge labels from tuple of 1D tensor to 2D tensor

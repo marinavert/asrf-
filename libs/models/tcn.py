@@ -358,7 +358,6 @@ class ActionSegmentRefinementFramework(nn.Module):
 
         # action segmentation branch
         asb = [ Prediction_Generation(n_layers_PG, n_features, n_classes, n_classes)] + [Refinement(n_layers_R, n_features, n_classes, n_classes) for _ in range(n_stages_asb-1)]
-        # print("ASB = ", asb)
         # boundary regression branch
         brb = [
             SingleStageTCN(1, n_features, 1, n_layers) for _ in range(n_stages_brb - 1)
@@ -370,21 +369,15 @@ class ActionSegmentRefinementFramework(nn.Module):
         self.activation_brb = nn.Sigmoid()
 
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        # print("X = ", x.size())
         out = self.conv_in(x)
-        # print("Out = ", out.size())
-        # z = 1
         for layer in self.shared_layers:
             out = layer(out)
-            # print("Layer ", z, " = ", out.size())
-            # z += 1
-        out_cls = self.conv_cls(out)
-        out_bound = self.conv_bound(out)
+
+        out_cls = self.conv_cls(out) # change x to out when using long-term feature extractor
+        out_bound = self.conv_bound(out) # change x to out when using long-term feature extractor
 
         if self.training:
             outputs_cls = [out_cls]
-            # print(len(outputs_cls))
-            # print("ZZZZZZZZZZ", outputs_cls[0].shape)
             outputs_bound = [out_bound]
 
             for as_stage in self.asb:

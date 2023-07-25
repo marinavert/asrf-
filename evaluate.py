@@ -130,5 +130,10 @@ def main():
 
 
 if __name__ == "__main__":
-    with wandb.init(project="asrf++-gtea", notes="epoch=50, original setting"):
+    args = get_arguments()
+    # configuration
+    config = get_config(args.config)
+    experiment_name = os.path.basename(os.path.dirname(args.config))
+    
+    with wandb.init(project="asrf++-hands", notes="epoch=50, original setting", name=experiment_name):
         main()

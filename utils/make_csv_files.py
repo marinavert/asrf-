@@ -60,9 +60,11 @@ def main() -> None:
             train_ids = [train_id[:-4] for train_id in train_ids]
 
             train_feature_paths = []
+            # train_hand_paths = []
             train_label_paths = []
             train_boundary_paths = []
             val_feature_paths = []
+            # val_hand_paths = []
             val_label_paths = []
             val_boundary_paths = []
 
@@ -74,6 +76,11 @@ def main() -> None:
                             args.dataset_dir, dataset, "features", train_ids[j] + ".npy"
                         )
                     )
+                    # val_hand_paths.append(
+                    #     os.path.join(
+                    #         args.dataset_dir, dataset, "hand", train_ids[j] + ".npy"
+                    #     )
+                    # )
                     val_label_paths.append(
                         os.path.join(
                             args.dataset_dir, dataset, "gt_arr", train_ids[j] + ".npy"
@@ -93,6 +100,11 @@ def main() -> None:
                             args.dataset_dir, dataset, "features", train_ids[j] + ".npy"
                         )
                     )
+                    # train_hand_paths.append(
+                    #     os.path.join(
+                    #         args.dataset_dir, dataset, "hand", train_ids[j] + ".npy"
+                    #     )
+                    # )
                     train_label_paths.append(
                         os.path.join(
                             args.dataset_dir, dataset, "gt_arr", train_ids[j] + ".npy"
@@ -118,6 +130,10 @@ def main() -> None:
                 os.path.join(args.dataset_dir, dataset, "features", test_id + ".npy")
                 for test_id in test_ids
             ]
+            # test_hand_paths = [
+            #     os.path.join(args.dataset_dir, dataset, "hand", test_id + ".npy")
+            #     for test_id in test_ids
+            # ]
             test_label_paths = [
                 os.path.join(args.dataset_dir, dataset, "gt_arr", test_id + ".npy")
                 for test_id in test_ids
@@ -133,28 +149,31 @@ def main() -> None:
             train_df = pd.DataFrame(
                 {
                     "feature": train_feature_paths,
+                    # "hand": train_hand_paths,
                     "label": train_label_paths,
                     "boundary": train_boundary_paths,
                 },
-                columns=["feature", "label", "boundary"],
+                columns=["feature", "hand", "label", "boundary"],
             )
 
             val_df = pd.DataFrame(
                 {
                     "feature": val_feature_paths,
+                    # "hand": val_hand_paths,
                     "label": val_label_paths,
                     "boundary": val_boundary_paths,
                 },
-                columns=["feature", "label", "boundary"],
+                columns=["feature", "hand", "label", "boundary"],
             )
 
             test_df = pd.DataFrame(
                 {
                     "feature": test_feature_paths,
+                    # "hand": test_hand_paths,
                     "label": test_label_paths,
                     "boundary": test_boundary_paths,
                 },
-                columns=["feature", "label", "boundary"],
+                columns=["feature", "hand", "label", "boundary"],
             )
 
             train_df.to_csv(
